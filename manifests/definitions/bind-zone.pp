@@ -28,30 +28,36 @@ define bind::zone($ensure=present,
     $zone_xfers=false,
     $zone_masters=false) {
 
-  common::concatfilepart {"bind.zones.${name}":
+  gnuine_common::concatfilepart {"bind.zones.${name}":
     ensure  => $ensure,
-    notify  => Service["bind9"],
-    file    => "/etc/bind/zones/${name}.conf",
+    file    => "${bind::params::config_zones}/${name}.conf",
     require => Package["bind9"],
   }
 
-  common::concatfilepart {"named.local.zone.${name}":
+  gnuine_common::concatfilepart {"named.local.zone.${name}":
     ensure  => $ensure,
+    file    => "${bind::params::config_home}/named.conf.local",
+    content => "include \"${bind::params::zones_path}/${name}.conf\";\n",
     notify  => Service["bind9"],
-    file    => "/etc/bind/named.conf.local",
-    content => "include \"/etc/bind/zones/${name}.conf\";\n",
-    require => Package["bind9"],
   }
 
   if $is_slave {
     if !$zone_masters {
       fail "No master defined for ${name}!"
     }
-    Common::Concatfilepart["bind.zones.${name}"] {
+    Gnuine_common::Concatfilepart["bind.zones.${name}"] {
       content => template("bind/zone-slave.erb"),
     }
-## END of slave
-  } else {
+
+    Gnuine_common::Concatfilepart["named.local.zone.${name}"] {
+      require => [
+        Gnuine_common::Concatfilepart["bind.zones.${name}"],
+        Package["bind9"],
+      ]
+    }
+    ## END of slave
+  }
+  else {
     if !$zone_contact {
       fail "No contact defined for ${name}!"
     }
@@ -65,24 +71,34 @@ define bind::zone($ensure=present,
       fail "No ttl defined for ${name}!"
     }
 
-    Common::Concatfilepart["bind.zones.${name}"] {
-      content => template("bind/zone-master.erb"),
+    Gnuine_common::Concatfilepart["bind.zones.${name}"] {
+      content => template("bind/zone-master-${bind::params::os}.erb"),
     }
 
-    common::concatfilepart {"bind.00.${name}":
+    Gnuine_common::Concatfilepart["named.local.zone.${name}"] {
+      require => [
+        Gnuine_common::Concatfilepart["bind.00.${name}"],
+        Gnuine_common::Concatfilepart["bind.zones.${name}"],
+        Package["bind9"],
+      ]
+    }
+
+    gnuine_common::concatfilepart {"bind.00.${name}":
       ensure => $ensure,
-      file   => "/etc/bind/pri/${name}.conf",
+      file   => "${bind::params::database_zones}/${name}.conf",
       content => template("bind/zone-header.erb"),
       require => Package["bind9"],
     }
 
-    file {"/etc/bind/pri/${name}.conf.d":
+    file {"${bind::params::database_zones}/${name}.conf.d":
       ensure => directory,
       mode   => 0700,
       purge  => true,
       recurse => true,
       backup  => false,
       force   => true,
+      require => Package["bind9"]
     }
   }
+
 }

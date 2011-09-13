@@ -24,8 +24,8 @@ define bind::mx($ensure=present,
     $_owner = $name
   }
 
-  common::concatfilepart{"bind.${name}":
-    file    => "/etc/bind/pri/${zone}",
+  gnuine_common::concatfilepart{"bind.${name}":
+    file    => "${bind::params::database_zones}/${zone}",
     ensure  => $ensure,
     notify  => Service["bind9"],
     content => template("bind/mx-record.erb"),

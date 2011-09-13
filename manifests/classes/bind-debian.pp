@@ -7,6 +7,11 @@ You should not include this class - please refer to Class["bind"]
 
 */
 class bind::debian inherits bind::base {
+
+  package {"bind9":
+    ensure => present,
+  }
+
   Service["bind9"] {
     pattern => "/usr/sbin/named",
     restart => "/etc/init.d/bind9 reload",

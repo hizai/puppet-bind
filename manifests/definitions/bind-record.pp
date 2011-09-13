@@ -26,9 +26,9 @@ define bind::record($ensure=present,
     $_owner = $name
   }
 
-  common::concatfilepart {"${zone}.${record_type}.${name}":
+  gnuine_common::concatfilepart {"${zone}.${record_type}.${name}":
     ensure  => $ensure,
-    file    => "/etc/bind/pri/${zone}.conf",
+    file    => "${bind::params::database_zones}/${zone}.conf",
     content => template("bind/default-record.erb"),
     notify  => Service["bind9"],
   }
