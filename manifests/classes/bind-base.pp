@@ -12,7 +12,7 @@ class bind::base {
   include bind::params
 
   $debian = $operatingsystem ? {
-    /RedHat|CentOS|Linux/ => false,
+    /RedHat|CentOS|Amazon|Linux/ => false,
     /Debian|Ubuntu/ => true,
   }
 
