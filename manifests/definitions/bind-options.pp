@@ -9,7 +9,7 @@ Arguments:
 */
 define bind::options($template_file) {
 
-  file { "${bind::params::config_home}/named.conf":
+  file { "/etc/named.conf":
     ensure => file,
     content => template($template_file),
     owner => 'root',
