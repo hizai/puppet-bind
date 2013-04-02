@@ -19,6 +19,7 @@ class bind::base {
   service { "bind9":
     ensure  => running,
     enable  => true,
+    hasstatus => false,
     require => Package["bind9"],
   }
 
