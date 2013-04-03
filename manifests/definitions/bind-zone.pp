@@ -83,7 +83,7 @@ define bind::zone($ensure=present,
       ]
     }
 
-    gnuine_common::concatfilepart {"bind.00.${name}":
+    gnuine_common::concatfilepart {"000.bind.00.${name}":
       ensure => $ensure,
       file   => "${bind::params::database_zones}/${name}.conf",
       content => template("bind/zone-header.erb"),
