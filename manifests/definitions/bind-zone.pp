@@ -77,7 +77,7 @@ define bind::zone($ensure=present,
 
     Gnuine_common::Concatfilepart["named.local.zone.${name}"] {
       require => [
-        Gnuine_common::Concatfilepart["bind.00.${name}"],
+        Gnuine_common::Concatfilepart["000.bind.00.${name}"],
         Gnuine_common::Concatfilepart["bind.zones.${name}"],
         Package["bind9"],
       ]
